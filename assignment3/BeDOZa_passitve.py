@@ -101,8 +101,8 @@ def blood_type_compatibility_tester(recipient: tuple[tuple[int, int], tuple[int,
 # Write Main Function
 
 if __name__ == "__main__":
-  Alice_Blood_Type = 'o-' # Alice's blood type (recipient type)
-  Bob_Blood_Type = 'ab-' # Bob's blood type (donor type)
+  Alice_Blood_Type = 'ab+' # Alice's blood type (recipient type)
+  Bob_Blood_Type = 'o-' # Bob's blood type (donor type)
 
   Alice_input = blood_type_encoding[Alice_Blood_Type]  # Alice's input bit
   Bob_input = blood_type_encoding[Bob_Blood_Type]  # Bob's input bit

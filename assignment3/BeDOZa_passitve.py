@@ -72,7 +72,7 @@ def and_gate(share1: tuple[int, int], share2: tuple[int, int]) -> tuple[int, int
     z_b = w_b ^ (e * x_b) ^ (d * y_b)
     return (z_a, z_b)
 
-def or_gate(share1: tuple[int, int], share2: tuple[int, int]) -> int:
+def or_gate(share1: tuple[int, int], share2: tuple[int, int]) -> tuple[int, int]:
     # Using De Morgan's law: x OR y = NOT(NOT x AND NOT y)
     not_x = xor_const(share1, 1)
     not_y = xor_const(share2, 1)
@@ -102,7 +102,7 @@ def blood_type_compatibility_tester(recipient: tuple[tuple[int, int], tuple[int,
 
 if __name__ == "__main__":
   Alice_Blood_Type = 'ab+' # Alice's blood type (recipient type)
-  Bob_Blood_Type = 'o-' # Bob's blood type (donor type)
+  Bob_Blood_Type = 'a-' # Bob's blood type (donor type)
 
   Alice_input = blood_type_encoding[Alice_Blood_Type]  # Alice's input bit
   Bob_input = blood_type_encoding[Bob_Blood_Type]  # Bob's input bit

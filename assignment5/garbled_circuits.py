@@ -49,6 +49,7 @@ def yao_garble(circuit:Circuit, garbled_gates:list[Gate]):
         gate = Gate()
         gate.bool_function = circuit.gate_func[i]
         gate.A_wire_number = circuit.A[i]
+      
         gate.A_keys = circuit.keys[gate.A_wire_number - 1]
         gate.B_wire_number = circuit.B[i]
         gate.B_keys = circuit.keys[gate.B_wire_number - 1]
@@ -60,11 +61,23 @@ def yao_garble(circuit:Circuit, garbled_gates:list[Gate]):
             C01 = enc(gate.A_keys[0], gate.B_keys[1], gate.number, gate.out_keys[0])
             C10 = enc(gate.A_keys[1], gate.B_keys[0], gate.number, gate.out_keys[0])
             C11 = enc(gate.A_keys[1], gate.B_keys[1], gate.number, gate.out_keys[1])
+            
         elif gate.bool_function == "OR":
             C00 = enc(gate.A_keys[0], gate.B_keys[0], gate.number, gate.out_keys[0])
             C01 = enc(gate.A_keys[0], gate.B_keys[1], gate.number, gate.out_keys[1])
             C10 = enc(gate.A_keys[1], gate.B_keys[0], gate.number, gate.out_keys[1])
             C11 = enc(gate.A_keys[1], gate.B_keys[1], gate.number, gate.out_keys[1])
+            
+      
+        elif gate.bool_function == "A_OR_NOT_B":
+            C00 = enc(gate.A_keys[0], gate.B_keys[0], gate.number, gate.out_keys[1])  # 0,0 -> 1
+            C01 = enc(gate.A_keys[0], gate.B_keys[1], gate.number, gate.out_keys[0])  # 0,1 -> 0
+            C10 = enc(gate.A_keys[1], gate.B_keys[0], gate.number, gate.out_keys[1])  # 1,0 -> 1
+            C11 = enc(gate.A_keys[1], gate.B_keys[1], gate.number, gate.out_keys[1])  # 1,1 -> 1
+            
+            
+            
+        
         else:
             raise ValueError("Unsupported gate function")
         
@@ -152,108 +165,44 @@ def yao_de(Y, d):
 
 
 #========================================
-circuit1 = Circuit(3,1,2, [4,5], [1,4], [2,3], ["OR", "AND"])
-circuit1 = Circuit(n=6, m=1, q=8, A=[0,0,0,1,2,3,10,13], B=[4,5,6,7,8,9,11,12], gates=["NOT", "NOT", "NOT", "OR", "OR", "OR", "AND", "AND"], gates=[7,8,9,10,11,12,13,14])
+
+# toggle this to test with different inputs for Alice and Bob
+Alice= [1,0,1]
+Bob = [1,1,0]
+
+#======================================================
+
+#circuit1 = Circuit(3,1,2, [4,5], [1,4], [2,3], ["OR", "AND"]) # easy trest circuit
+
+circuit1 = Circuit(n=6, m=1, q=5, gates=[7,8,9,10,11], A=[1,2,3,7,10], B=[4,5,6,8,10], gate_func=["A_OR_NOT_B", "A_OR_NOT_B", "A_OR_NOT_B", "OR", "OR"])
 garbled_gates = []
 
+print(f"Alice: 1. Generating garbled circuit:")
 gc, e, d = yao_garble(circuit1, garbled_gates)
-print("\n=== Garbled Circuit ===")
-print(f"Number of gates: {len(gc)}")
-print(f"Input encoding keys: {len(e)} wires")
-print(f"Output decoding keys: {len(d)} wires")
-# print(f"gc: {gc}")
-print(f"d: {d}")
 
-print("============")
-X = yao_En(e,x=[1,0,1] )
-print(X)
+print("Alice:  gc, e, d <- yao_garble(circuit)\n")
 
+print(f"Alice: 2.1 Generating encoding info for my bits x_2, x-1, x_1, and sendign them to bob")
+
+X = yao_En(e,x=[1,0,1,1,0,1] )
+X = yao_En(e[:3],x=Alice )
+print(f"Alice: 2.1 - X[:half] = yao_En(e, x=[x_2, x_1, x_0]) = {X}\n")
+
+print(f"Alice: doing OT with bob to give him encoding keys for his bits y_2, y_1, y_0(which i do not know)")
+X_bob = yao_En(e[3:], x=Bob)
+
+X = X + X_bob
+
+
+print(f"Bob: 3. Evaluating the garbled circuit(gc) on garbled inputs(X) to get garbled outputs(Y):")
+print(f"Bob: 3. sending y to alice Y <- yao_eval(X, gc)")
 Y = yao_eval(X, gc, circuit1)
-print(f"Y={Y}")
-print("============")
+print(f"Y={Y}\n")
+
+print(f"Alice: 4. Decoding the garbled outputs(Y) to get output bits(output):")
 
 output = yao_de(Y, d)
 print(f"output={output}")
-print("============")
 
-# pprint.pprint(f"gc: {gc}")
-# pprint.pprint(f"e: {e}")
-# pprint.pprint(f"d: {d}")
-
-# class GateKeys:
-#     def __init__(self, gate_name, gate_number):
-#         self.gate_name
-#         self.gate_number
-#         self.enc_k0_l 
-#         self.enc_k1_l
-#         self.enc_k0_r
-#         self.enc_k1_r
-#         self.dec_k0
-#         self.dec_k1
-
-#     def generateKeys(keys):
-#         pass
-
-# class Alice_garbler: # garbler
-#     def __init__(self, x: str):   
-#         self.x = x    
-#         pass
-             
-#     def generate_gate_material(self):
-#         "k0_l k1_l  k0_r k1_r dec_k0 enc_k1"
-        
-
-
-#         pass
-
-#     def generate_gate_ciphertext(self, encoding_keys, decoding_keys):
-#         """and date 0,0,0,1
-#         c0 = enc(  k_0)
-#         c1 = enc( k_0)
-#         c2 = enc( k_0)
-#         c_3 = enc(k_1)       
-        
-#         """
-        
-#         pass
-
-
-    
-#     def __repr__(self):
-#         return (
-#             f"Alice(x = {self.x})"
-#         )
-
-
-
-# class Bob:
-#     def __init__(self, blood_type: str):
-#         self.y = y
-    
-        
-#     def __repr__(self):
-#         return (
-#             f"Bob(blood_type={self.blood_type}, "
-#             f"blood_type_encoding={self.blood_type_encoding[self.blood_type]},\n "
-#             f"c_like={self.c_like})"
-#         )
-    
-   
-
-
-
-        
-
-        
-
-#
-# bob = Bob('a-') # donor
-# alice = Alice('ab-') # recipent
-# pk_list = alice.choose_b()
-
-
-# c = bob.transfer_c(pk_list)
-
-# m = alice.retreive(c)
 
 

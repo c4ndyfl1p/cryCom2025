@@ -55,7 +55,7 @@ def enc(k_1: bytes, k_2:bytes , gate_number :int, m: bytes) -> bytes:
     # generate 16 byes of 0s and pad it to message
     pad = bytes([0]*16)    
     m = m + pad
-    print(f"m after padding: {m}, len: {len(m)}")
+    # print(f"m after padding: {m}, len: {len(m)}")
     c_2 = xor_bytes(c_1, m)
     return c_2
 

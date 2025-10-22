@@ -41,9 +41,14 @@ for donor in range(8):
   c3 = FHE_enc(m3, pub_key_file, n)
   donorblood_enc = (c1, c2, c3)
   for recipient in range(8):
-      # Recipient Checks Compatibility and sends back result
+      # Recipient Encrypts their blood type, Checks Compatibility and sends back result
       recipientblood = blood_type_encoding_HE[list(blood_type_encoding.keys())[recipient]]
-      compat = bloodtype_compatability_depth3(donorblood_enc, recipientblood)
+      m1, m2, m3 = recipientblood
+      c1 = FHE_enc(m1, pub_key_file, n)
+      c2 = FHE_enc(m2, pub_key_file, n)
+      c3 = FHE_enc(m3, pub_key_file, n)
+      recipientblood_enc = (c1, c2, c3)
+      compat = bloodtype_compatability_depth3(donorblood_enc, recipientblood_enc)
 
       # Donor Decrypts the result
       compat_dec = FHE_dec(compat, secret_key)

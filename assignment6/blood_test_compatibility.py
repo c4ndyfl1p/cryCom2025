@@ -2,6 +2,7 @@ from d_fhe_scheme import FHE_keygen, FHE_enc, FHE_dec
 import gmpy2
 import secrets      
 import pickle
+from HE import blood_type_encoding_HE, bloodtype_compatability_depth3
 
 # Example usage
 p_bits = 2000  # size of secret key p in bits
